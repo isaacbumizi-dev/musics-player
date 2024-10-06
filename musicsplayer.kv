@@ -1,0 +1,843 @@
+#:import screen_manager screen_manager
+
+<HomeScreen>:
+    # -------------------L'écran d'accueil---------------------------------------
+    Screen:
+        name: "HomeScreen"
+        canvas.before:
+            Color:
+                rgba: (0.122, 0.627, 0.333, .05)
+            Triangle:
+                points: (0,self.height, self.width,0, 0,0)
+        MDRelativeLayout:
+            MDIcon:
+                icon: "music-note"
+                font_size: "100dp"
+                pos_hint: {"center_x": .5, "center_y": .5}
+            MDSpinner:
+                size_hint: None, None
+                size: dp(20), dp(20)
+                pos_hint: {'center_x': .5, 'center_y': .1}
+            MDLabel:
+                text: "Created by Isaac Bumizi"
+                font_size: "8dp"
+                halign: "center"
+                color: 1, 1, 1, .2
+                pos_hint: {"center_y": .01}
+
+
+
+    # -------------------L'écran principal où se trouve les tabs---------------------------------------
+    Screen:
+        name: "principalScreen"
+        canvas.before:
+            Rectangle:
+                size: self.size
+                source: root.background_image
+            Color:
+                rgba: 0, 0, 0, .4
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        MDBoxLayout:
+            orientation: "vertical"
+
+            MDBoxLayout:
+                orientation: "horizontal"
+                size_hint: 1, .1
+                padding: [10, 0, 5, 0]
+                MDLabel:
+                    text: "Musics Player"
+                    font_name: root.background_font
+                    font_size: 28
+                    halign: "left"
+                    valign: "center"
+                MDIconButton:
+                    icon: "magnify"
+                    ripple_alpha: 0.1
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_press: app.manager.push("researchScreen")
+                MDIconButton:
+                    id: paramater_ids_menu
+                    icon: "dots-vertical"
+                    ripple_alpha: 0.1
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_press: app.manager.open_parameters_menu()
+
+            MDTabs:
+                allow_stretch: True
+                tab_padding: [5, 0, 5, 0]
+                background_color: 0, 0, 0, 0
+                text_color_normal: 1, 1, 1, 1
+                text_color_active: 0, 1, 0, .6
+                indicator_color: 0, 1, 0, .6
+
+                Tab:
+                    title: "Pistes"
+                    MDRelativeLayout:
+                        MDLabel:
+                            text: "Aucune piste trouvée"
+                            halign: "center"
+                            opacity: root.piste_label_opacity
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        MDBoxLayout:
+                            size_hint: 1, .15
+                            orientation: "horizontal"
+                            MDLabel:
+                                text: "{} musique(s)".format(len(id_recycle_view.data))
+                                halign: "left"
+                                font_size: "12dp"
+                                padding: [10, 0, 10, 0]
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                            MDBoxLayout:
+                                label_tri_text: label_tri_text
+                                padding: [0, 0, 7, 0]
+                                size_hint: .6, 1
+                                MDTextButton:
+                                    text: "Trié par: "
+                                    halign: "right"
+                                    font_size: "15dp"
+                                    pos_hint: {"center_x": .8, "center_y": .5}
+                                    on_press:
+                                        label_tri_text.text =  "nom[a-z]" if label_tri_text.text == "nom[z-a]" else "nom[z-a]"
+                                        root.sort_recycleView_item(label_tri_text.text)
+
+                                MDLabel:
+                                    id: label_tri_text
+                                    text: "nom[a-z]"
+                                    halign: "right"
+                                    font_size: "15dp"
+
+                        MDRelativeLayout:
+                            RecycleView:
+                                id: id_recycle_view
+                                key_viewclass: 'viewclass'
+                                key_size: 'height'
+                                RecycleBoxLayout:
+                                    padding: [3, 5, 3, 0]
+                                    default_size: None, dp(65)
+                                    default_size_hint: 1, None
+                                    size_hint_y: None
+                                    height: self.minimum_height
+                                    orientation: 'vertical'
+
+                        MDProgressBar:
+                            size_hint: 1, .01
+                            min: 0
+                            max: root.H_MAX_SLIDER_VALUE
+                            value: root.H_CURRENT_MUSIC_POSITION
+
+                        MDBoxLayout:
+                            size_hint: 1, .14
+                            spacing: 10
+                            padding: [10, 5, 10, 5]
+                            md_bg_color: 1, 1, 1, .025
+                            FitImage:
+                                source: root.H_MUSIC_PICTURE
+                                radius: 5
+                                size_hint: None, None
+                                size: 50, 50
+                                opacity: root.H_PLAY_LABEL_OPACITY
+                            ScrollLabel:
+                                text: str(root.H_CURRENT_MUSIC_PLAYING_LABEL) + "                        "
+                                opacity: root.H_PLAY_LABEL_OPACITY
+                                disabled: True if self.opacity == 0 else False
+                                on_release: app.manager.push("musicPlayScreen")
+                            MDIconButton:
+                                icon: root.H_MUSIC_PLAYING_STATE_ICON_SECONDARY
+                                icon_size: "30dp"
+                                size_hint: .15, 1
+                                _no_ripple_effect: True
+                                opacity: root.H_PLAY_LABEL_OPACITY
+                                disabled: True if self.opacity == 0 else False
+                                on_press: on_press: root.control_music_state(self.icon)
+                Tab:
+                    title: "Album"
+                    MDRelativeLayout:
+                        MDLabel:
+                            text: "Aucun Album trouvé"
+                            halign: "center"
+                            opacity: root.album_label_opacity
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                    ScrollView:
+                        MDGridLayout:
+                            cols: 2
+                            spacing: 5
+                            padding: [5, 20, 5, 10]
+                            size_hint: 1, None
+                            height: self.minimum_height
+                            id: album_item
+
+                Tab:
+                    title: "Artiste"
+                    MDRelativeLayout:
+                        MDLabel:
+                            text: "Aucun artiste trouvé"
+                            halign: "center"
+                            opacity: root.artist_label_opacity
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                    ScrollView:
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            spacing: 5
+                            padding: [5, 20, 5, 10]
+                            size_hint: 1, None
+                            height: self.minimum_height
+                            id: artist_item
+
+                Tab:
+                    title: "Playlist"
+                    MDRelativeLayout:
+                        MDLabel:
+                            text: "Pas de playlist"
+                            halign: "center"
+                            opacity: root.playlist_label_opacity
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                    MDBoxLayout:
+                        orientation: "vertical"
+                        MDBoxLayout:
+                            orientation: "horizontal"
+                            size_hint: 1, .1
+                            Widget:
+
+                            MDIconButton:
+                                icon: "playlist-plus"
+                                ripple_alpha: 0.1
+                                icon_size: "30dp"
+                                pos_hint: {"center_x": .5, "center_y": .5}
+                                on_press: root.open_playlist_PopUp()
+
+                        ScrollView:
+                            MDBoxLayout:
+                                orientation: "vertical"
+                                spacing: 5
+                                padding: [5, 20, 5, 10]
+                                size_hint: 1, None
+                                height: self.minimum_height
+                                id: playlist_item
+
+                Tab:
+                    title: "Dossier"
+                    MDRelativeLayout:
+                        MDLabel:
+                            text: "Aucun dosser trouvé"
+                            halign: "center"
+                            opacity: root.piste_label_opacity
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                    ScrollView:
+                        MDBoxLayout:
+                            orientation: "vertical"
+                            spacing: 5
+                            padding: [5, 20, 5, 10]
+                            size_hint: 1, None
+                            height: self.minimum_height
+                            id: folder
+
+                Tab:
+                    title: "Favori"
+                    MDRelativeLayout:
+                        MDLabel:
+                            text: "Aucune piste dans la liste"
+                            halign: "center"
+                            opacity: root.favorite_label_opacity
+                            pos_hint: {"center_x": .5, "center_y": .5}
+                    RecycleView:
+                        id: favorite
+                        key_viewclass: 'viewclass'
+                        key_size: 'height'
+                        RecycleBoxLayout:
+                            padding: [3, 5, 3, 0]
+                            default_size: None, dp(65)
+                            default_size_hint: 1, None
+                            size_hint_y: None
+                            height: self.minimum_height
+                            orientation: 'vertical'
+
+    # -------------------L'écran de la recherche---------------------------------------
+    Screen:
+        name: "researchScreen"
+        on_pre_enter: search_field.text = ""
+        MDBoxLayout:
+            orientation: "vertical"
+            padding: 10
+            spacing: 10
+            MDBoxLayout:
+                size_hint: 1, .1
+                padding: [0, 10, 10, 5]
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    _no_ripple_effect: True
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_press: app.manager.pop()
+                MDTextField:
+                    id: search_field
+                    mode: 'rectangle'
+                    multiline: False
+                    hint_text: "Rechercher une piste"
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_text: root.set_list_recherche_recycleView(self.text, True)
+            RecycleView:
+                id: rv
+                key_viewclass: 'viewclass'
+                key_size: 'height'
+                RecycleBoxLayout:
+                    padding: [3, 5, 3, 0]
+                    default_size: None, dp(65)
+                    default_size_hint: 1, None
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+
+    # -------------------L'écran de lancement d'une music---------------------------------------
+    Screen:
+        name: "musicPlayScreen"
+        MDBoxLayout:
+            orientation: "vertical"
+            spacing: 5
+            canvas.before:
+                Rectangle:
+                    size: self.size
+                    source: root.theme_background_image_font[0]
+                Color:
+                    rgba: 0, 0, 0, .3
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+            MDBoxLayout:
+                size_hint: 1, .15
+                orientation: "horizontal"
+                padding: [5, 5, 10, 2]
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_press: app.manager.push("principalScreen")
+                Widget:
+
+                MDIconButton:
+                    id: music_menu
+                    icon: "dots-vertical"
+                    size_hint: .1, 1
+                    _no_ripple_effect: True
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                    on_press: root.open_music_menu()
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: [10, 30, 10, 5]
+                spacing: 4
+                size_hint: 1, 1.5
+                FitImage:
+                    source: root.H_MUSIC_PICTURE
+                    radius: 9
+                    size_hint: .85, .3
+                    pos_hint: {"center_x": .5, "center_y": .5}
+                MDLabel:
+                    padding: [15, 0, 15, 0]
+                    size_hint: 1, .2
+                    text: str(root.H_CURRENT_MUSIC_PLAYING_LABEL)
+                    valign: "center"
+                    halign: "center"
+
+            MDBoxLayout:
+                size_hint: 1, .8
+                orientation: "vertical"
+                MDBoxLayout:
+                    size_hint: 1, .4
+                    spacing: 5
+                    padding: [10, 0, 10, 0]
+                    orientation: "vertical"
+                    MDSlider:
+                        min: 0
+                        max: root.H_MAX_SLIDER_VALUE
+                        value: root.H_CURRENT_MUSIC_POSITION
+                        hint: False
+                        on_touch_up: root.update_musicPlaying_Position_with_MDSlider(self.value)
+                        on_touch_move: root.update_musicPlaying_Position_with_MDSlider(self.value)
+
+                    MDBoxLayout:
+                        orientation: "horizontal"
+                        padding: [10, 0, 10, 0]
+                        MDLabel:
+                            text: str(root.H_MUSIC_PROGRESSION_TIME)
+                            bold: True
+                            halign: "left"
+                            font_size: 12
+                        MDLabel:
+                            text: str(root.H_MUSIC_LENGHT)
+                            halign: "right"
+                            bold: True
+                            font_size: 12
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    padding: [10, 0, 10, 0]
+                    spacing: 10
+                    MDIconButton:
+                        icon: "skip-previous"
+                        icon_size: "30dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: app.manager.init_musicPlaying_Parameters(root.H_CURRENT_MUSIC_PLAYING_LABEL, "prev", True)
+                    MDIconButton:
+                        icon: "rewind-10"
+                        icon_size: "18dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: root.update_musicPlaying_Position("rewind-10")
+                    MDIconButton:
+                        icon: root.H_MUSIC_PLAYING_STATE_ICON
+                        icon_size: "55dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_press: app.manager.control_music_state(self.icon)
+                    MDIconButton:
+                        icon: "fast-forward-10"
+                        icon_size: "18dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: root.update_musicPlaying_Position("fast-forward-10")
+                    MDIconButton:
+                        icon: "skip-next"
+                        icon_size: "30dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_release: app.manager.init_musicPlaying_Parameters(root.H_CURRENT_MUSIC_PLAYING_LABEL, "next", True)
+                MDBoxLayout:
+                    size_hint: 1, .5
+                    padding: [10, 0, 10, 20]
+                    MDIconButton:
+                        icon: root.H_FAVORITE_ICON_BUTTON
+                        icon_size: "20dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        theme_icon_color: "Custom"
+                        icon_color: [1, 1, 1, 1] if self.icon == "star-outline" else [0, 1, 0, 1]
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_press: root.add_favorite_music(self)
+                    MDIconButton:
+                        icon: root.H_MUSIC_PLAYING_MODE_ICON
+                        icon_size: "20dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_press: root.init_musicPlaying_Mode()
+                    MDIconButton:
+                        icon: "playlist-music-outline"
+                        icon_size: "20dp"
+                        size_hint: 1, 1
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        on_press: app.manager.show_curent_music_list()
+                    MDIconButton:
+                        icon: "volume-high"
+                        icon_size: "20dp"
+                        size_hint: 1, 1
+                        color: "red"
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .5, "center_y": .5}
+                        theme_icon_color: "Custom"
+                        icon_color: [1, 1, 1, 1] if self.icon == "volume-high" else [0, 1, 0, 1]
+                        on_press:
+                            self.icon = "volume-off" if self.icon == "volume-high" else "volume-high"
+                            root.control_Music_volume_wiht_muteButton(self.icon)
+
+
+
+
+    # -------------------L'écran d'accueil d'un album---------------------------------------
+    Screen:
+        name: "albumScreen"
+        MDBoxLayout:
+            orientation: "vertical"
+            MDRelativeLayout:
+                size_hint: 1, .4
+                FitImage:
+                    source: root.object_background_image
+                    radius: [0, 0, 9, 9]
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    pos_hint: {"center_x": .05, "center_y": .85}
+                    on_press: app.manager.pop()
+                MDLabel:
+                    text: str(root.H_OBJECT_NAME)
+                    halign: "center"
+                    pos_hint: {"center_x": .5, "center_y": .4}
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: 5
+                spacing: 10
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint: 1, .2
+                    padding: [10, 0, 10, 0]
+                    MDLabel:
+                        text: str(root.H_OBJECT_NUMBER)
+                        haling: "center"
+                        valign: "center"
+                        font_size: 12
+                    MDIconButton:
+                        icon: "play-circle"
+                        icon_size: "45dp"
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .9, "center_y": .5}
+                        on_press: root.init_musicPlaying_Parameters(root.get_current_music_list()[0], openPlayingScreen=True)
+                RecycleView:
+                    id: album
+                    key_viewclass: 'viewclass'
+                    key_size: 'height'
+                    RecycleBoxLayout:
+                        padding: [3, 5, 3, 0]
+                        default_size: None, dp(65)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        orientation: 'vertical'
+
+    # -------------------L'écran d'accueil d'un artist---------------------------------------
+    Screen:
+        name: "artistScreen"
+        MDBoxLayout:
+            orientation: "vertical"
+            MDRelativeLayout:
+                size_hint: 1, .4
+                FitImage:
+                    source: root.object_background_image
+                    radius: [0, 0, 9, 9]
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    pos_hint: {"center_x": .05, "center_y": .85}
+                    on_press: app.manager.pop()
+                MDLabel:
+                    text: str(root.H_OBJECT_NAME)
+                    halign: "center"
+                    pos_hint: {"center_x": .5, "center_y": .4}
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: 5
+                spacing: 10
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint: 1, .2
+                    padding: [10, 0, 10, 0]
+                    MDLabel:
+                        text: str(root.H_OBJECT_NUMBER)
+                        haling: "center"
+                        valign: "center"
+                        font_size: 12
+                    MDIconButton:
+                        icon: "play-circle"
+                        icon_size: "45dp"
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .9, "center_y": .5}
+                        on_press: root.init_musicPlaying_Parameters(root.get_current_music_list()[0], openPlayingScreen=True)
+                RecycleView:
+                    id: artist
+                    key_viewclass: 'viewclass'
+                    key_size: 'height'
+                    RecycleBoxLayout:
+                        padding: [3, 5, 3, 0]
+                        default_size: None, dp(65)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        orientation: 'vertical'
+
+    # -------------------L'écran d'accueil d'un Dossier---------------------------------------
+    Screen:
+        name: "folderScreen"
+        MDBoxLayout:
+            orientation: "vertical"
+            MDRelativeLayout:
+                size_hint: 1, .4
+                FitImage:
+                    source: root.object_background_image
+                    radius: [0, 0, 9, 9]
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    pos_hint: {"center_x": .05, "center_y": .85}
+                    on_press: app.manager.pop()
+                MDLabel:
+                    text: str(root.H_OBJECT_NAME)
+                    halign: "center"
+                    pos_hint: {"center_x": .5, "center_y": .4}
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: 5
+                spacing: 10
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint: 1, .2
+                    padding: [10, 0, 10, 0]
+                    MDLabel:
+                        text: str(root.H_OBJECT_NUMBER)
+                        haling: "center"
+                        valign: "center"
+                        font_size: 12
+                    MDIconButton:
+                        icon: "play-circle"
+                        icon_size: "45dp"
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .9, "center_y": .5}
+                        on_press: root.init_musicPlaying_Parameters(root.get_current_music_list()[0], openPlayingScreen=True)
+                RecycleView:
+                    id: folder_id
+                    key_viewclass: 'viewclass'
+                    key_size: 'height'
+                    RecycleBoxLayout:
+                        padding: [3, 5, 3, 0]
+                        default_size: None, dp(65)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        orientation: 'vertical'
+
+    # -------------------L'écran d'accueil de playlist---------------------------------------
+    Screen:
+        name: "playlistScreen"
+        MDRelativeLayout:
+            MDLabel:
+                text: "Aucune piste dans la liste"
+                halign: "center"
+                opacity: root.playlistItemLabelOpacity
+                pos_hint: {"center_x": .5, "center_y": .4}
+        MDBoxLayout:
+            orientation: "vertical"
+            MDRelativeLayout:
+                size_hint: 1, .35
+                FitImage:
+                    source: root.object_background_image
+                    radius: [0, 0, 9, 9]
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    pos_hint: {"center_x": .05, "center_y": .85}
+                    on_press: app.manager.pop()
+                MDLabel:
+                    text: str(root.H_OBJECT_NAME)
+                    halign: "center"
+                    font_size: 20
+                    pos_hint: {"center_x": .5, "center_y": .4}
+
+            MDBoxLayout:
+                orientation: "vertical"
+                padding: 5
+                spacing: 10
+                MDBoxLayout:
+                    orientation: "horizontal"
+                    size_hint: 1, .10
+                    padding: [5, 0, 5, 0]
+                    MDIconButton:
+                        icon: "music-note-plus"
+                        icon_size: "25dp"
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .9, "center_y": .5}
+                        on_press: root.init_playlist_Items(root.H_OBJECT_NAME)
+
+                    Widget:
+
+                    MDIconButton:
+                        icon: "play-circle"
+                        icon_size: "45dp"
+                        _no_ripple_effect: True
+                        pos_hint: {"center_x": .9, "center_y": .5}
+                        on_press: root.init_musicPlaying_Parameters(root.get_current_music_list()[0], openPlayingScreen=True) if len(playlist_id.data) > 0 else None
+                MDSeparator:
+                RecycleView:
+                    id: playlist_id
+                    key_viewclass: 'viewclass'
+                    key_size: 'height'
+                    RecycleBoxLayout:
+                        padding: [3, 5, 3, 0]
+                        default_size: None, dp(65)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        orientation: 'vertical'
+
+    Screen:
+        name: "AddPlaylist_Items_Screen"
+        MDBoxLayout:
+            orientation: "vertical"
+            MDBoxLayout:
+                size_hint: 1, .08
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    on_press:
+                        app.manager.pop()
+                        root.init_playlist_content(root.H_OBJECT_NAME)
+                Widget:
+            MDSeparator:
+
+            MDBoxLayout:
+                RecycleView:
+                    id: add_playlist_items
+                    key_viewclass: 'viewclass'
+                    key_size: 'height'
+                    RecycleBoxLayout:
+                        padding: [3, 5, 3, 0]
+                        default_size: None, dp(65)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        orientation: 'vertical'
+
+    Screen:
+        name: "music_list"
+        MDBoxLayout:
+            orientation: "vertical"
+            MDBoxLayout:
+                size_hint: 1, .08
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    on_press:app.manager.pop()
+
+                Widget:
+            MDSeparator:
+
+            MDBoxLayout:
+                padding: [5, 5, 5, 10]
+                RecycleView:
+                    id: music_list_id
+                    key_viewclass: 'viewclass'
+                    key_size: 'height'
+                    RecycleBoxLayout:
+                        padding: [3, 5, 3, 0]
+                        default_size: None, dp(65)
+                        default_size_hint: 1, None
+                        size_hint_y: None
+                        height: self.minimum_height
+                        orientation: 'vertical'
+
+    Screen:
+        name: "AddTo_Screen"
+        MDRelativeLayout:
+            MDLabel:
+                text: "Pas de playlist"
+                halign: "center"
+                opacity: root.playlist_label_opacity
+                pos_hint: {"center_x": .5, "center_y": .5}
+        MDBoxLayout:
+            orientation: "vertical"
+            MDBoxLayout:
+                size_hint: 1, .08
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    on_press:app.manager.pop()
+
+                Widget:
+            MDSeparator:
+            ScrollView:
+                MDBoxLayout:
+                    orientation: "vertical"
+                    spacing: 5
+                    padding: [5, 20, 5, 10]
+                    size_hint: 1, None
+                    height: self.minimum_height
+                    id: add_to
+
+    Screen:
+        name: "themeScreen"
+        on_enter: root.init_theme_tile()
+        MDBoxLayout:
+            orientation: "vertical"
+            MDBoxLayout:
+                orientation: "horizontal"
+                padding: [5, 0, 5, 0]
+                size_hint: 1, .1
+                MDIconButton:
+                    icon: "arrow-left"
+                    size_hint: .1, 1
+                    icon_size: "20dp"
+                    _no_ripple_effect: True
+                    on_press: app.manager.pop()
+                MDLabel:
+                    text: "Choisir un theme"
+                    valign: "center"
+                    halign: "center"
+            ScrollView:
+                MDGridLayout:
+                    cols: 2
+                    spacing: 5
+                    padding: [5, 20, 5, 10]
+                    size_hint: 1, None
+                    height: self.minimum_height
+                    id: theme_tile
+
+<ScrollLabel>:
+    divider: None
+
+<CustomOneLineIconListItem>:
+    MDBoxLayout:
+        orientation: "horizontal"
+        padding: [3, 10, 5, 5]
+        spacing: 7
+        MDIcon:
+            icon: "music"
+            font_size: "30dp"
+            color: 0, 1, 0, .3
+            pos_hint: {"center_x": .5, "center_y": .5}
+        MDLabel:
+            text: str(root.name)
+            halign: "left"
+            valign: "center"
+            font_size: 14
+        MDIconButton:
+            icon: "play"
+            size_hint: .2, 1
+            icon_size: "27dp"
+            _no_ripple_effect: True
+            pos_hint: {"center_x": .5, "center_y": .5}
+            on_press: app.manager.init_musicPlaying_Parameters(root.name, openPlayingScreen=True)
+
+<PlaylistCustomOneLineIconListItem>
+    MDBoxLayout:
+        orientation: "horizontal"
+        padding: [3, 10, 0, 5]
+        spacing: 7
+        MDIconButton:
+            icon: "delete"
+            _no_ripple_effect: True
+            theme_icon_color: "Custom"
+            icon_color: 0, 1, 0, .3
+            pos_hint: {"center_x": .5, "center_y": .5}
+            on_press: app.manager.delete_playlist_Item(root.music_name, root.playlist_name)
+        MDLabel:
+            text: str(root.music_name)
+            halign: "left"
+            valign: "center"
+            font_size: 14
+        MDIconButton:
+            icon: "play"
+            size_hint: .3, 1
+            _no_ripple_effect: True
+            pos_hint: {"center_x": .5, "center_y": .5}
+            on_press: app.manager.init_musicPlaying_Parameters(root.music_name, openPlayingScreen=True)
