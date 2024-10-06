@@ -14,4 +14,6 @@ Clone the repository from GitHub.
 Ensure Python and the required libraries are installed on your system.
 Run the script using Python: python music_player.py.
 Start enjoying your music!
+
+
 Note: This project is intended for personal use and educational purposes. Ensure you have the rights to the music files you play.
